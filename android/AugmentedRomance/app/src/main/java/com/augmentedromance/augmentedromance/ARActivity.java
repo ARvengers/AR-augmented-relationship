@@ -27,6 +27,7 @@ import com.vidinoti.android.vdarsdk.VDARAnnotationView;
 import com.vidinoti.android.vdarsdk.VDARCode;
 import com.vidinoti.android.vdarsdk.VDARContext;
 import com.vidinoti.android.vdarsdk.VDARPrior;
+import com.vidinoti.android.vdarsdk.VDARTagPrior;
 import com.vidinoti.android.vdarsdk.VDARRemoteController;
 import com.vidinoti.android.vdarsdk.VDARRemoteController.ObserverUpdateInfo;
 import com.vidinoti.android.vdarsdk.VDARRemoteControllerListener;
@@ -222,7 +223,7 @@ public class ARActivity extends Activity implements
 				// You can add a tag this way to do tag based synchronization.
 				// Leaving will synchronize all the models you have created and
 				// that are published on PixLive Maker.
-				// priors_list.add(new VDARTagPrior("MyTag"));
+				priors_list.add(new VDARTagPrior("TagA"));
 
 				Log.v(TAG, "Starting sync");
 

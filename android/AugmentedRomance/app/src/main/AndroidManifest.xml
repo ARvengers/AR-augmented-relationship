@@ -18,10 +18,10 @@
     <application
         android:allowBackup="false"
         android:icon="@drawable/ic_launcher"
-        android:label="My AR App" android:hardwareAccelerated="true">
+        android:label="AugmentedRomance" android:hardwareAccelerated="true">
         <activity
             android:name=".ARActivity"
-            android:label="My AR App"
+            android:label="AugmentedRomance"
             android:launchMode="singleTop"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:theme="@android:style/Theme.NoTitleBar" >
