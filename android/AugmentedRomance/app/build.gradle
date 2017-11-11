@@ -1,0 +1,43 @@
+apply plugin: 'com.android.application'
+
+android {
+    signingConfigs {
+        config {
+            keyAlias 'mykey'
+            keyPassword 'augmentedromance'
+        }
+    }
+    compileSdkVersion 25
+    buildToolsVersion '25.0.2'
+    defaultConfig {
+        applicationId "com.mycompany.augmentedromance"
+        minSdkVersion 14
+        targetSdkVersion 25
+    }
+    buildTypes {
+        all {
+            ndk {
+                abiFilters "armeabi-v7a", "x86"
+            }
+        }
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+        }
+    }
+}
+
+repositories {
+    mavenCentral()
+    flatDir {
+        dirs 'libs'
+    }
+}
+
+dependencies {
+    compile name: 'vdarsdk-release', ext: 'aar'
+    compile 'com.android.support:appcompat-v7:25.3.1'
+    compile 'com.google.android.gms:play-services-gcm:10.2.6'
+    // Add PDF support. The app will crash when opening a PDF if the dependency is missing.
+    compile 'com.github.barteksc:android-pdf-viewer:2.7.0'
+}

@@ -1,0 +1,10 @@
+<component name="libraryTable">
+  <library name="vdarsdk-release:@aar">
+    <CLASSES>
+      <root url="file://$USER_HOME$/.android/build-cache/a79f9c66fbf6f5536002598b575f9d5d85555b0b/output/res" />
+      <root url="jar://$USER_HOME$/.android/build-cache/a79f9c66fbf6f5536002598b575f9d5d85555b0b/output/jars/classes.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
