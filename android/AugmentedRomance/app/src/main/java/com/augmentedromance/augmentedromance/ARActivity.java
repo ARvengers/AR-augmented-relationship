@@ -21,6 +21,12 @@ import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
+import android.os.SystemClock;
+
+import android.support.v4.app.ActivityCompat;
+import android.Manifest;
+import android.location.LocationManager;
+import java.util.List;
 
 import com.vidinoti.android.vdarsdk.camera.DeviceCameraImageSender;
 import com.vidinoti.android.vdarsdk.VDARAnnotationView;
@@ -33,11 +39,18 @@ import com.vidinoti.android.vdarsdk.VDARRemoteController.ObserverUpdateInfo;
 import com.vidinoti.android.vdarsdk.VDARRemoteControllerListener;
 import com.vidinoti.android.vdarsdk.VDARSDKController;
 import com.vidinoti.android.vdarsdk.VDARSDKControllerEventReceiver;
+import com.vidinoti.android.vdarsdk.VDARLocalizationManager;
+import com.vidinoti.android.vdarsdk.VDARLocalizationManagerEventReceiver;
+import com.vidinoti.android.vdarsdk.geopoint.GeoPointManager;
+
+import com.vidinoti.android.vdarsdk.geopoint.VDARGPSPoint;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
+
+import android.location.Location;
 
 /**
  * Is a sample code of an Android activity demonstrating the integration of the
@@ -64,6 +77,10 @@ public class ARActivity extends Activity implements
 	private ProgressBar progressSync;
 
 	private RelativeLayout rl;
+
+	private  VDARLocalizationManager localization = new VDARLocalizationManager();
+
+	private GeoPointManager geoPoints = new  GeoPointManager();
 
 	/** Initiates the sample activity */
 	@Override
@@ -126,6 +143,31 @@ public class ARActivity extends Activity implements
 						}
 					});
 		}
+
+		// Request permission for location
+		ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
+
+
+		MyInterfaceImpl receiver = new MyInterfaceImpl();
+
+		localization.registerEventReceiver(receiver);
+
+		this.localization.startLocalization();
+
+		double lat = this.localization.getCurrentBestLocationEstimate().getLatitude();
+		double lon = this.localization.getCurrentBestLocationEstimate().getLongitude();
+		Log.d("LOCATION", "Latitue: " + Double.toString(lat) + "Londitude: " + Double.toString(lon));
+
+
+
+	}
+
+	public void onLocationChanged(Location location){
+
+		double lat = location.getLatitude();
+		double lon = location.getLongitude();
+		Log.d("LOCATION", "Latitue: " + Double.toString(lat) + "Londitude: " + Double.toString(lon));
+
 	}
 
 	/**
@@ -223,7 +265,9 @@ public class ARActivity extends Activity implements
 				// You can add a tag this way to do tag based synchronization.
 				// Leaving will synchronize all the models you have created and
 				// that are published on PixLive Maker.
-				priors_list.add(new VDARTagPrior("TagA"));
+				//priors_list.add(new VDARTagPrior("TagA"));
+
+				priors_list.add(new VDARTagPrior("Geo"));
 
 				Log.v(TAG, "Starting sync");
 
@@ -244,13 +288,35 @@ public class ARActivity extends Activity implements
 													+ " models.");
 											synchronized (ARActivity.this) {
 												syncInProgress = false;
+
 											}
+
+											double lat = ARActivity.this.localization.getCurrentBestLocationEstimate().getLatitude();
+											double lon = ARActivity.this.localization.getCurrentBestLocationEstimate().getLongitude();
+
+											Log.d("LOCATION", "Latitue: " + Double.toString(lat) + "Londitude: " + Double.toString(lon));
+											Log.d("GEO_POINTS", "Getting nearby geo points");
+											List<VDARGPSPoint> nearby = geoPoints.getNearbyGPSPoints(Float.valueOf(String.valueOf(lat)),Float.valueOf(String.valueOf(lon)));
+											Log.d("GEO_POINTS Found: ", String.valueOf(nearby.size()));
+
+											List<VDARGPSPoint> bounding = geoPoints.getGPSPointsInBoundingBox(40,0,50,10);
+											Log.d("GEO_POINTS Found: ", String.valueOf(bounding.size()));
+
+											for (VDARGPSPoint member : bounding){
+												Log.d("GEO_POINTS name: ", member.getLabel());
+											}
+
+
 										}
 
 									}
 								});
 			}
 		});
+
+
+
+
 	}
 
 	/** Is called when the activity is paused. */
@@ -264,6 +330,7 @@ public class ARActivity extends Activity implements
 		//Remove ourself from the listener list
 		VDARRemoteController.getInstance().removeProgressListener(this);
 	}
+
 
 	/** Is called when the activity is resumed. */
 	@Override
@@ -282,6 +349,14 @@ public class ARActivity extends Activity implements
 		 * everything is up to date.
 		 */
 		synchronize(null);
+
+		//while(syncInProgress){
+		//SystemClock.sleep(1000);
+		//}
+
+
+
+
 	}
 
 	@Override
