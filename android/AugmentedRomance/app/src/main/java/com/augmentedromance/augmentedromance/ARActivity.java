@@ -28,6 +28,7 @@ import android.Manifest;
 import android.location.LocationManager;
 import java.util.List;
 
+import com.google.firebase.database.FirebaseDatabase;
 import com.vidinoti.android.vdarsdk.camera.DeviceCameraImageSender;
 import com.vidinoti.android.vdarsdk.VDARAnnotationView;
 import com.vidinoti.android.vdarsdk.VDARCode;
@@ -49,6 +50,15 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
+
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.MutableData;
+import com.google.firebase.database.ServerValue;
+import com.google.firebase.database.Transaction;
+import com.google.firebase.database.ValueEventListener;
 
 import android.location.Location;
 
@@ -166,6 +176,34 @@ public class ARActivity extends Activity implements
 		double lat = this.localization.getCurrentBestLocationEstimate().getLatitude();
 		double lon = this.localization.getCurrentBestLocationEstimate().getLongitude();
 		Log.d("LOCATION", "Latitue: " + Double.toString(lat) + "Londitude: " + Double.toString(lon));
+
+
+		// Write a message to the database
+		FirebaseDatabase database = FirebaseDatabase.getInstance();
+		DatabaseReference myRef = database.getReference();
+
+		DatabaseReference matchesRef = myRef.child("matches/UserB");
+
+		// Read from the database
+		matchesRef.addValueEventListener(new ValueEventListener() {
+			@Override
+			public void onDataChange(DataSnapshot dataSnapshot) {
+				// This method is called once with the initial value and again
+				// whenever data at this location is updated.
+				String value = dataSnapshot.getValue(String.class);
+				Log.d(TAG, "Value is: " + value);
+			}
+
+			@Override
+			public void onCancelled(DatabaseError error) {
+				// Failed to read value
+				Log.w(TAG, "Failed to read value.", error.toException());
+			}
+		});
+
+
+
+
 	}
 
 	/**
@@ -418,12 +456,6 @@ public class ARActivity extends Activity implements
 		 */
 		synchronizeGeo(null);
 
-		//while(syncInProgress){
-		//SystemClock.sleep(1000);
-		//}
-
-
-
 
 	}
 
@@ -565,7 +597,14 @@ public class ARActivity extends Activity implements
 
 	@Override
 	public void onEnterContext(VDARContext context) {
-		Log.v(TAG,"Context "+context+" detected.");
+
+		// Write a message to the database
+		FirebaseDatabase database = FirebaseDatabase.getInstance();
+		DatabaseReference myRef = database.getReference();
+
+		DatabaseReference matchesRef = myRef.child("matches/UserB");
+
+		matchesRef.setValue(context.getName());
 	}
 
 	@Override

@@ -41,6 +41,7 @@ repositories {
 dependencies {
     implementation 'com.android.support.constraint:constraint-layout:1.0.2'
     implementation 'com.google.firebase:firebase-auth:11.4.2'
+    implementation 'com.google.firebase:firebase-database:11.4.2'
     compile name: 'vdarsdk-release', ext: 'aar'
     compile 'com.android.support:appcompat-v7:26.0.2'
     compile 'com.google.android.gms:play-services-gcm:11.4.2'
@@ -50,7 +51,7 @@ dependencies {
     compile 'com.github.barteksc:android-pdf-viewer:2.7.0'
 }
 
-
+//apply plugin: 'com.google.gms.google-services'
 
 
 apply plugin: 'com.google.gms.google-services'
