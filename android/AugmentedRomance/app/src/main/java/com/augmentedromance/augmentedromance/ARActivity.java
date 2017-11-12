@@ -88,6 +88,8 @@ public class ARActivity extends Activity implements
 
 	private RelativeLayout rl;
 
+	private String MyUserID = "UserB";
+
 	public void showCrumbsList(View view)
 	{
 		Intent intent = new Intent(this, BreadcrumbListActivity.class);
@@ -182,7 +184,7 @@ public class ARActivity extends Activity implements
 		FirebaseDatabase database = FirebaseDatabase.getInstance();
 		DatabaseReference myRef = database.getReference();
 
-		DatabaseReference matchesRef = myRef.child("matches/UserB");
+		DatabaseReference matchesRef = myRef.child("matches/" + MyUserID);
 
 		// Read from the database
 		matchesRef.addValueEventListener(new ValueEventListener() {
@@ -602,9 +604,9 @@ public class ARActivity extends Activity implements
 		FirebaseDatabase database = FirebaseDatabase.getInstance();
 		DatabaseReference myRef = database.getReference();
 
-		DatabaseReference matchesRef = myRef.child("matches/UserB");
+		DatabaseReference matchesRef = myRef.child("matches/" + context.getName());
 
-		matchesRef.setValue(context.getName());
+		matchesRef.setValue(MyUserID);
 	}
 
 	@Override
