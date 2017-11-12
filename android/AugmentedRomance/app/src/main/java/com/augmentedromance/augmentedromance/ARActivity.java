@@ -166,17 +166,6 @@ public class ARActivity extends Activity implements
 		double lat = this.localization.getCurrentBestLocationEstimate().getLatitude();
 		double lon = this.localization.getCurrentBestLocationEstimate().getLongitude();
 		Log.d("LOCATION", "Latitue: " + Double.toString(lat) + "Londitude: " + Double.toString(lon));
-
-
-
-	}
-
-	public void onLocationChanged(Location location){
-
-		double lat = location.getLatitude();
-		double lon = location.getLongitude();
-		Log.d("LOCATION", "Latitue: " + Double.toString(lat) + "Londitude: " + Double.toString(lon));
-
 	}
 
 	/**
