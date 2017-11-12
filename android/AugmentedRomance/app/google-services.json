@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "324179782023",
+    "firebase_url": "https://ar-augmented-romance.firebaseio.com",
+    "project_id": "ar-augmented-romance",
+    "storage_bucket": "ar-augmented-romance.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:324179782023:android:968e15f6569c4e46",
+        "android_client_info": {
+          "package_name": "com.augmentedromance.augmentedromance"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "324179782023-ddc61nvsbj0kicqr22ta46p89egvaokd.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.augmentedromance.augmentedromance",
+            "certificate_hash": "17351f5db3d287483ae7b93ca9f18688d56d5036"
+          }
+        },
+        {
+          "client_id": "324179782023-qubvfrib5iija3kas39r11pol1sr8g8g.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCEYq5HhUq9PLgxc14Z4ctqYRLxxXwOeGw"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "324179782023-qubvfrib5iija3kas39r11pol1sr8g8g.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
