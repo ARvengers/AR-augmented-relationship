@@ -21,12 +21,6 @@ import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
-import android.os.SystemClock;
-
-import android.support.v4.app.ActivityCompat;
-import android.Manifest;
-import android.location.LocationManager;
-import java.util.List;
 
 import com.vidinoti.android.vdarsdk.camera.DeviceCameraImageSender;
 import com.vidinoti.android.vdarsdk.VDARAnnotationView;
@@ -39,18 +33,11 @@ import com.vidinoti.android.vdarsdk.VDARRemoteController.ObserverUpdateInfo;
 import com.vidinoti.android.vdarsdk.VDARRemoteControllerListener;
 import com.vidinoti.android.vdarsdk.VDARSDKController;
 import com.vidinoti.android.vdarsdk.VDARSDKControllerEventReceiver;
-import com.vidinoti.android.vdarsdk.VDARLocalizationManager;
-import com.vidinoti.android.vdarsdk.VDARLocalizationManagerEventReceiver;
-import com.vidinoti.android.vdarsdk.geopoint.GeoPointManager;
-
-import com.vidinoti.android.vdarsdk.geopoint.VDARGPSPoint;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
-
-import android.location.Location;
 
 /**
  * Is a sample code of an Android activity demonstrating the integration of the
@@ -78,9 +65,16 @@ public class ARActivity extends Activity implements
 
 	private RelativeLayout rl;
 
-	private  VDARLocalizationManager localization = new VDARLocalizationManager();
+	public void showCrumbsList(View view)
+	{
+		Intent intent = new Intent(this, BreadcrumbListActivity.class);
+		startActivity(intent);
+	}
 
-	private GeoPointManager geoPoints = new  GeoPointManager();
+	public void showLogin(View view) {
+		Intent intent = new Intent(this, AuthUiActivity.class);
+		startActivity(intent);
+	}
 
 	/** Initiates the sample activity */
 	@Override
@@ -143,31 +137,6 @@ public class ARActivity extends Activity implements
 						}
 					});
 		}
-
-		// Request permission for location
-		ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
-
-
-		MyInterfaceImpl receiver = new MyInterfaceImpl();
-
-		localization.registerEventReceiver(receiver);
-
-		this.localization.startLocalization();
-
-		double lat = this.localization.getCurrentBestLocationEstimate().getLatitude();
-		double lon = this.localization.getCurrentBestLocationEstimate().getLongitude();
-		Log.d("LOCATION", "Latitue: " + Double.toString(lat) + "Londitude: " + Double.toString(lon));
-
-
-
-	}
-
-	public void onLocationChanged(Location location){
-
-		double lat = location.getLatitude();
-		double lon = location.getLongitude();
-		Log.d("LOCATION", "Latitue: " + Double.toString(lat) + "Londitude: " + Double.toString(lon));
-
 	}
 
 	/**
@@ -188,7 +157,7 @@ public class ARActivity extends Activity implements
 		VDARSDKController.startSDK(c, modelPath, MY_SDK_LICENSE_KEY);
 
 		/* Comment out to disable QR code detection */
-		//VDARSDKController.getInstance().setEnableCodesRecognition(true);
+//		VDARSDKController.getInstance().setEnableCodesRecognition(true);
 
 		/* Enable push notifications */
 		/* ------------------------- */
@@ -237,73 +206,10 @@ public class ARActivity extends Activity implements
 		progressSync.setProgress(0);
 	}
 
-
 	/**
 	 * Start a new PixLive SDK content synchronization.
 	 */
-	private void synchronizeTag(final ArrayList<VDARPrior> priors) {
-
-		//We have to make sure not to synchronized twice at the same time.
-		synchronized (this) {
-			if (syncInProgress)
-				return;
-
-			syncInProgress = true;
-		}
-
-		// Synchronization has to be started after the SDK is loaded. The
-		// addNewAfterLoadingTask method allows that.
-		VDARSDKController.getInstance().addNewAfterLoadingTask(new Runnable() {
-
-			@Override
-			public void run() {
-				ArrayList<VDARPrior> priors_list = new ArrayList<VDARPrior>();
-
-				if (priors != null) {
-					priors_list.addAll(priors);
-				}
-
-				// You can add a tag this way to do tag based synchronization.
-				// Leaving will synchronize all the models you have created and
-				// that are published on PixLive Maker.
-				//priors_list.add(new VDARTagPrior("TagA"));
-
-				//priors_list.add(new VDARTagPrior("Geo"));
-
-				Log.v(TAG, "Starting Tag sync");
-
-				// Launch sync.
-				VDARRemoteController.getInstance()
-						.syncRemoteContextsAsynchronouslyWithPriors(priors_list,
-								new Observer() {
-
-									@Override
-									public void update(Observable observable,
-													   Object data) {
-										ObserverUpdateInfo info = (ObserverUpdateInfo) data;
-
-										if (info.isCompleted()) {
-											Log.v(TAG, "Done syncing. Tag Synced "
-													+ info.getFetchedContexts()
-													.size()
-													+ " models.");
-											synchronized (ARActivity.this) {
-												syncInProgress = false;
-
-											}
-										}
-
-									}
-								});
-			}
-		});
-	}
-
-
-	/**
-	 * Start a new PixLive SDK content synchronization.
-	 */
-	private void synchronizeGeo(final ArrayList<VDARPrior> priors) {
+	private void synchronize(final ArrayList<VDARPrior> priors) {
 		
 		//We have to make sure not to synchronized twice at the same time.
 		synchronized (this) {
@@ -328,11 +234,9 @@ public class ARActivity extends Activity implements
 				// You can add a tag this way to do tag based synchronization.
 				// Leaving will synchronize all the models you have created and
 				// that are published on PixLive Maker.
-				//priors_list.add(new VDARTagPrior("TagA"));
+				priors_list.add(new VDARTagPrior("TagA"));
 
-				priors_list.add(new VDARTagPrior("Geo"));
-
-				Log.v(TAG, "Starting Geo sync");
+				Log.v(TAG, "Starting sync");
 
 				// Launch sync.
 				VDARRemoteController.getInstance()
@@ -345,48 +249,19 @@ public class ARActivity extends Activity implements
 										ObserverUpdateInfo info = (ObserverUpdateInfo) data;
 
 										if (info.isCompleted()) {
-											Log.v(TAG, "Done syncing. Geo Synced "
+											Log.v(TAG, "Done syncing. Synced "
 													+ info.getFetchedContexts()
 													.size()
 													+ " models.");
 											synchronized (ARActivity.this) {
 												syncInProgress = false;
-
 											}
-
-											double lat = ARActivity.this.localization.getCurrentBestLocationEstimate().getLatitude();
-											double lon = ARActivity.this.localization.getCurrentBestLocationEstimate().getLongitude();
-
-											Log.d("LOCATION", "Latitue: " + Double.toString(lat) + "Londitude: " + Double.toString(lon));
-											Log.d("GEO_POINTS", "Getting nearby geo points");
-											List<VDARGPSPoint> nearby = geoPoints.getNearbyGPSPoints(Float.valueOf(String.valueOf(lat)),Float.valueOf(String.valueOf(lon)));
-											Log.d("GEO_POINTS Found: ", String.valueOf(nearby.size()));
-
-											List<VDARGPSPoint> bounding = geoPoints.getGPSPointsInBoundingBox(40,0,50,10);
-											Log.d("GEO_POINTS Found: ", String.valueOf(bounding.size()));
-
-											ArrayList<VDARPrior> priors_list = new ArrayList<VDARPrior>();
-											for (VDARGPSPoint member : nearby){
-												Log.d("GEO_POINTS name: ", member.getLabel());
-												priors_list.add(new VDARTagPrior(member.getLabel()));
-											}
-
-											if(priors_list.size() > 0){
-												Log.d("here","here");
-												synchronizeTag(priors_list);
-											}
-
-
 										}
 
 									}
 								});
 			}
 		});
-
-
-
-
 	}
 
 	/** Is called when the activity is paused. */
@@ -400,7 +275,6 @@ public class ARActivity extends Activity implements
 		//Remove ourself from the listener list
 		VDARRemoteController.getInstance().removeProgressListener(this);
 	}
-
 
 	/** Is called when the activity is resumed. */
 	@Override
@@ -418,15 +292,7 @@ public class ARActivity extends Activity implements
 		 * Trigger a synchronization so that every time we load the app,
 		 * everything is up to date.
 		 */
-		synchronizeGeo(null);
-
-		//while(syncInProgress){
-		//SystemClock.sleep(1000);
-		//}
-
-
-
-
+		synchronize(null);
 	}
 
 	@Override
@@ -577,6 +443,6 @@ public class ARActivity extends Activity implements
 
 	@Override
 	public void onRequireSynchronization(ArrayList<VDARPrior> priors) {
-		synchronizeGeo(priors);
+		synchronize(priors);
 	}
 }
