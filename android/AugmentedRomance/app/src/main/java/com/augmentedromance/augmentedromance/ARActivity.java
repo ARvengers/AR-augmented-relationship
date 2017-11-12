@@ -188,7 +188,7 @@ public class ARActivity extends Activity implements
 		VDARSDKController.startSDK(c, modelPath, MY_SDK_LICENSE_KEY);
 
 		/* Comment out to disable QR code detection */
-		VDARSDKController.getInstance().setEnableCodesRecognition(true);
+		//VDARSDKController.getInstance().setEnableCodesRecognition(true);
 
 		/* Enable push notifications */
 		/* ------------------------- */
@@ -237,10 +237,73 @@ public class ARActivity extends Activity implements
 		progressSync.setProgress(0);
 	}
 
+
 	/**
 	 * Start a new PixLive SDK content synchronization.
 	 */
-	private void synchronize(final ArrayList<VDARPrior> priors) {
+	private void synchronizeTag(final ArrayList<VDARPrior> priors) {
+
+		//We have to make sure not to synchronized twice at the same time.
+		synchronized (this) {
+			if (syncInProgress)
+				return;
+
+			syncInProgress = true;
+		}
+
+		// Synchronization has to be started after the SDK is loaded. The
+		// addNewAfterLoadingTask method allows that.
+		VDARSDKController.getInstance().addNewAfterLoadingTask(new Runnable() {
+
+			@Override
+			public void run() {
+				ArrayList<VDARPrior> priors_list = new ArrayList<VDARPrior>();
+
+				if (priors != null) {
+					priors_list.addAll(priors);
+				}
+
+				// You can add a tag this way to do tag based synchronization.
+				// Leaving will synchronize all the models you have created and
+				// that are published on PixLive Maker.
+				//priors_list.add(new VDARTagPrior("TagA"));
+
+				//priors_list.add(new VDARTagPrior("Geo"));
+
+				Log.v(TAG, "Starting Tag sync");
+
+				// Launch sync.
+				VDARRemoteController.getInstance()
+						.syncRemoteContextsAsynchronouslyWithPriors(priors_list,
+								new Observer() {
+
+									@Override
+									public void update(Observable observable,
+													   Object data) {
+										ObserverUpdateInfo info = (ObserverUpdateInfo) data;
+
+										if (info.isCompleted()) {
+											Log.v(TAG, "Done syncing. Tag Synced "
+													+ info.getFetchedContexts()
+													.size()
+													+ " models.");
+											synchronized (ARActivity.this) {
+												syncInProgress = false;
+
+											}
+										}
+
+									}
+								});
+			}
+		});
+	}
+
+
+	/**
+	 * Start a new PixLive SDK content synchronization.
+	 */
+	private void synchronizeGeo(final ArrayList<VDARPrior> priors) {
 		
 		//We have to make sure not to synchronized twice at the same time.
 		synchronized (this) {
@@ -269,7 +332,7 @@ public class ARActivity extends Activity implements
 
 				priors_list.add(new VDARTagPrior("Geo"));
 
-				Log.v(TAG, "Starting sync");
+				Log.v(TAG, "Starting Geo sync");
 
 				// Launch sync.
 				VDARRemoteController.getInstance()
@@ -282,7 +345,7 @@ public class ARActivity extends Activity implements
 										ObserverUpdateInfo info = (ObserverUpdateInfo) data;
 
 										if (info.isCompleted()) {
-											Log.v(TAG, "Done syncing. Synced "
+											Log.v(TAG, "Done syncing. Geo Synced "
 													+ info.getFetchedContexts()
 													.size()
 													+ " models.");
@@ -302,8 +365,15 @@ public class ARActivity extends Activity implements
 											List<VDARGPSPoint> bounding = geoPoints.getGPSPointsInBoundingBox(40,0,50,10);
 											Log.d("GEO_POINTS Found: ", String.valueOf(bounding.size()));
 
-											for (VDARGPSPoint member : bounding){
+											ArrayList<VDARPrior> priors_list = new ArrayList<VDARPrior>();
+											for (VDARGPSPoint member : nearby){
 												Log.d("GEO_POINTS name: ", member.getLabel());
+												priors_list.add(new VDARTagPrior(member.getLabel()));
+											}
+
+											if(priors_list.size() > 0){
+												Log.d("here","here");
+												synchronizeTag(priors_list);
 											}
 
 
@@ -348,7 +418,7 @@ public class ARActivity extends Activity implements
 		 * Trigger a synchronization so that every time we load the app,
 		 * everything is up to date.
 		 */
-		synchronize(null);
+		synchronizeGeo(null);
 
 		//while(syncInProgress){
 		//SystemClock.sleep(1000);
@@ -507,6 +577,6 @@ public class ARActivity extends Activity implements
 
 	@Override
 	public void onRequireSynchronization(ArrayList<VDARPrior> priors) {
-		synchronize(priors);
+		synchronizeGeo(priors);
 	}
 }
